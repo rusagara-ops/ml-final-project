@@ -131,6 +131,19 @@ python -m src.train_baseline
 python -m src.demo "How do I request an official transcript?"
 ```
 
+### Demo CLI options
+
+`src/demo.py` supports a few input modes and a `--top-k` flag, plus
+`--model` so it can also showcase Abel's models once they exist:
+
+```bash
+python -m src.demo "How do I drop a course?"                 # positional
+python -m src.demo --top-k 5 "Where do I file a FAFSA appeal?"
+python -m src.demo --interactive                              # REPL mode
+echo "I lost my Yale ID card" | python -m src.demo --stdin
+python -m src.demo --model results/some_other_model.joblib "..."
+```
+
 ## Commands (Yale dataset workflow)
 
 1. **Optional — expand Yale HTML data:** edit **`data/raw/yale_faq_seed_urls.csv`**, then run **`collect_yale_faqs`** (see [Real Dataset Collection](#real-dataset-collection)). Merge into **`data/raw/collected_questions.csv`** when ready.
