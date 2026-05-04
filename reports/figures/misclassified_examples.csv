@@ -1,0 +1,13 @@
+question,true_label,predicted_label,top1_confidence,top3
+cocktail receptions,Dining,Registrar,0.3071884785797524,"Registrar, Dining, Housing"
+what about greek cuisine in the u.s. and is it constantly rising?,Dining,Registrar,0.4686074749046208,"Registrar, Housing, Financial_Aid"
+the last day to submit a request for review for matriculated and continuing students is march 15th of the spring semester.,Financial_Aid,Registrar,0.3000842038788073,"Registrar, Financial_Aid, Housing"
+fafsa (yale college’s code: 001426),Financial_Aid,Registrar,0.4409266103548479,"Registrar, Financial_Aid, Housing"
+"bridgeport hospital – milford campus, 300 seaside avenue, milford",Health_Wellness,Housing,0.24682398566198058,"Housing, Registrar, Dining"
+designation of patient spokesperson,Health_Wellness,Registrar,0.32526142603450203,"Registrar, Housing, Financial_Aid"
+seeking medical help/assistance if someone shows signs of alcohol poisoning.,Housing,Registrar,0.3818942711025194,"Registrar, Housing, Financial_Aid"
+current full-time opportunities,Housing,Registrar,0.2822775305205491,"Registrar, Housing, Financial_Aid"
+quick start guide for instructors,IT,Registrar,0.3081620179285904,"Registrar, Housing, Financial_Aid"
+certificate or non-academic program support staff,IT,Registrar,0.3733275871109778,"Registrar, IT, Housing"
+comprehensive feedback,Registrar,IT,0.25782247077981846,"IT, Registrar, Housing"
+how long will i have access to canvas course sites if i place a course on my canvas worksheet?,Registrar,IT,0.509770993681065,"IT, Registrar, Housing"
