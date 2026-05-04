@@ -9,3 +9,5 @@ data/processed/
 results/*.joblib
 results/*.pkl
 results/metrics_baseline.json
+reports/.final_report.html
+reports/.report_style.css

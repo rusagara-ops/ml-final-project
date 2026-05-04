@@ -84,6 +84,28 @@ rows, and deduplicates by cleaned text. `src/split_data.py` produces a
 **stratified 60 / 20 / 20** split with `random_state=42` so re-runs are
 reproducible.
 
+### 2.4 EDA highlights
+
+A full exploratory analysis lives in
+[`notebooks/exploration.ipynb`](../notebooks/exploration.ipynb). Key numbers
+that inform the modeling choices:
+
+- **Length.** Median 10 tokens, 95th percentile 48 tokens. Per-class medians
+  cluster at 10–11 except Dining (7), so length carries almost no
+  class-discriminating signal except to single Dining out.
+- **Vocabulary.** ~4.6K unigrams and ~28K unigram+bigram features after
+  `min_df=2`. The smallest class still has a healthy type/token ratio — the
+  recall problem is a *prior* problem, not a vocabulary-shortage problem.
+- **Cross-class overlap.** Pairwise Jaccard overlap of unigram vocabularies
+  is ~0.20 between Registrar and most other classes, and 0.21 between
+  Financial_Aid ↔ Health_Wellness. These are the same pairs that dominate
+  the confusion matrix in §5.3.
+- **Source diversity.** Registrar draws on 62 distinct URLs and Housing on
+  52, but **Health_Wellness has only 16 distinct URLs** — its training
+  signal is narrower than the row count suggests, which compounds the class
+  imbalance. Concrete next-iteration item: expand crawl seeds for
+  Health_Wellness.
+
 ## 3. Methodology
 
 ### 3.1 Learning formulation
@@ -224,9 +246,32 @@ not memorizing artifacts:
 
 Incorrect predictions cluster sharply at low top-1 probabilities (peak around
 0.30), while correct predictions extend across the full range up to ≈0.95.
-Practically: a confidence threshold of ~0.50 would let the system auto-route
+Practically: a confidence threshold around 0.50 would let the system auto-route
 high-confidence predictions and defer the rest to a human or to a top-3
 shortlist UI — exactly the behavior the demo CLI exposes.
+
+#### 5.5.1 Coverage / accuracy trade-off (deployment view)
+
+![Coverage / accuracy trade-off at different confidence thresholds](figures/threshold_coverage.png)
+
+Sweeping the threshold turns the histogram above into a deployment knob. The
+operating points are:
+
+| Confidence threshold | Auto-route rate | Accuracy of auto-routed | Deferred to human |
+|---:|---:|---:|---:|
+| 0.30 | 89.5% | 78.7% | 65 |
+| 0.40 | 66.2% | 88.5% | 209 |
+| **0.50** | **50.3%** | **94.5%** | **307** |
+| 0.60 | 34.0% | 96.2% | 408 |
+| 0.70 | 20.2% | 97.6% | 493 |
+| 0.80 | 8.9% | 98.2% | 563 |
+
+A practical operating point is therefore **threshold = 0.50**: half of incoming
+questions auto-route at near-95% accuracy, and the remaining half can be
+served the top-3 shortlist for a human (or the student themselves) to pick
+from. That single curve replaces the abstract "use logistic-regression
+confidence" recommendation with a concrete service-level number a triage team
+could plan around.
 
 ### 5.6 Comparison with Naive Bayes and Linear SVM *(Abel)*
 
@@ -275,6 +320,37 @@ the demo CLI and the test confusion matrix.
    test rows). Every recommendation above either rebalances the loss or
    broadens non-Registrar coverage in the corpus.
 
+### 6.1 Representative misclassified test examples
+
+The table below samples actual test-set errors (two per true class, drawn
+deterministically by `src.figures.dump_misclassified_examples`). Two patterns
+jump out: the model often *knows* it is uncertain (top-1 confidences cluster
+between 0.25 and 0.50, well inside the "defer" band of §5.5.1), and the
+correct label is frequently in the top-3 even when the top-1 is wrong.
+
+| True label | Predicted | Top-1 conf. | Top-3 | Question |
+|---|---|---:|---|---|
+| Dining | Registrar | 0.31 | Registrar, Dining, Housing | cocktail receptions |
+| Dining | Registrar | 0.47 | Registrar, Housing, Financial_Aid | what about greek cuisine in the u.s. and is it constantly rising? |
+| Financial_Aid | Registrar | 0.30 | Registrar, Financial_Aid, Housing | the last day to submit a request for review for matriculated and continuing students is march 15th of the s… |
+| Financial_Aid | Registrar | 0.44 | Registrar, Financial_Aid, Housing | fafsa (yale college's code: 001426) |
+| Health_Wellness | Housing | 0.25 | Housing, Registrar, Dining | bridgeport hospital – milford campus, 300 seaside avenue, milford |
+| Health_Wellness | Registrar | 0.33 | Registrar, Housing, Financial_Aid | designation of patient spokesperson |
+| Housing | Registrar | 0.38 | Registrar, Housing, Financial_Aid | seeking medical help/assistance if someone shows signs of alcohol poisoning. |
+| Housing | Registrar | 0.28 | Registrar, Housing, Financial_Aid | current full-time opportunities |
+| IT | Registrar | 0.31 | Registrar, Housing, Financial_Aid | quick start guide for instructors |
+| IT | Registrar | 0.37 | Registrar, IT, Housing | certificate or non-academic program support staff |
+| Registrar | IT | 0.26 | IT, Registrar, Housing | comprehensive feedback |
+| Registrar | IT | 0.51 | IT, Registrar, Housing | how long will i have access to canvas course sites if i place a course on my canvas worksheet? |
+
+Every error in the first 10 rows is a *recovered* error: the true office is
+already in the top-3, so a shortlist UI would have surfaced it. The last
+two rows are the harder case — true-Registrar examples that lost their own
+top-1 to IT — and they reveal that some Registrar-labeled FAQ rows are
+themselves crawl noise ("comprehensive feedback") or genuinely span two
+offices ("canvas course sites"). Cleaning these would help precision more
+than any modeling change.
+
 ## 7. Limitations and Ethical Use
 
 - **Yale-only corpus.** The model is trained on public Yale FAQ pages. It is
@@ -316,6 +392,19 @@ python -m src.split_data --input data/processed/final_dataset.csv
 python -m src.train_baseline
 python -m src.figures
 # Then read results/metrics_baseline.json and reports/figures/*.png
+```
+
+To rebuild `reports/final_report.pdf` from the markdown source (requires
+`pandoc` and either Google Chrome or another Chromium-based browser):
+
+```bash
+cd reports
+pandoc final_report.md --standalone --css=.report_style.css \
+  --embed-resources --metadata title="RouteRight — Final Report" \
+  -o .final_report.html
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --disable-gpu --no-pdf-header-footer \
+  --print-to-pdf=final_report.pdf "file://$(pwd)/.final_report.html"
 ```
 
 ### Appendix B — Demo CLI
