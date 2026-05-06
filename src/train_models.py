@@ -1,10 +1,10 @@
-"""Extended model comparisons: Multinomial Naive Bayes and Linear SVM.
+"""Extended model comparisons: Multinomial Naive Bayes and calibrated Linear SVM.
 
-Abel's implementation of additional models with hyperparameter tuning:
-- MultinomialNB with alpha tuning
-- LinearSVC with CalibratedClassifierCV and C tuning
-- Grid search for optimal hyperparameters
-- Comparison against TF-IDF + Logistic Regression baseline
+Trains alternative linear text classifiers on the same stratified splits as the
+TF–IDF + logistic regression baseline:
+- MultinomialNB with CountVectorizer and smoothing (`alpha`) tuning
+- LinearSVC inside CalibratedClassifierCV for probability outputs and top‑k metrics
+- GridSearchCV with macro F1 scoring
 """
 
 from __future__ import annotations

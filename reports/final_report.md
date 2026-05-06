@@ -1,11 +1,7 @@
 # RouteRight: A Yale Student-Support Intent Classifier
 
-**Course:** CPSC 381/581 Machine Learning — Final Project
+**Course:** CPSC 381/581 Machine Learning — Final Project  
 **Team:** Ronald Milgo, Abel Adugna, Kevin Rusagara
-
-> Working draft. The baseline pipeline (TF-IDF + logistic regression) is fully
-> reported below; the *Comparison with NB / Linear SVM* sub-section in
-> **Results** is reserved for Abel's contribution and is currently a stub.
 
 ---
 
@@ -24,10 +20,10 @@ support offices should triage it: Registrar, Financial_Aid, Housing, IT,
 Dining, or Health_Wellness.
 
 **Approach.** We frame the task as supervised multiclass text classification
-over **public Yale FAQ pages**. The baseline is a TF-IDF + logistic regression
-pipeline, which is strong on small, clean text and gives interpretable
-per-class word weights. Planned comparisons (Multinomial NB, Linear SVM) are
-designed to slot into the same evaluation harness.
+over **public Yale FAQ pages**. The primary baseline is a TF-IDF + logistic
+regression pipeline, which gives interpretable per-class word weights. We
+also train **Multinomial Naive Bayes** (count features) and a **calibrated
+Linear SVM** on the same splits, using the same evaluation code.
 
 **Why this matters for the course.** Beyond accuracy, we focus on three
 properties relevant to real triage: (1) class-imbalanced behavior, where the
@@ -124,14 +120,19 @@ We use `TfidfVectorizer` with:
 
 ### 3.3 Models
 
-- **Baseline (this report):** `LogisticRegression(solver="lbfgs", max_iter=5000)` in a
-  scikit-learn `Pipeline` with the vectorizer above. We use the default L2
-  penalty and `multi_class="auto"`, which selects the multinomial loss for
-  multiclass.
-- **Planned comparisons (Abel):** Multinomial Naive Bayes and Linear SVM with
-  `CalibratedClassifierCV` (so `predict_proba` is available for top-k
-  metrics). These reuse the *same* train/val/test splits and are evaluated
-  through `src.evaluate.evaluate_model`.
+- **Baseline:** `LogisticRegression(solver="lbfgs", max_iter=5000)` in a scikit-learn
+  `Pipeline` with the TF–IDF vectorizer above. Multiclass training uses the
+  **multinomial logistic loss** (equivalently, categorical cross-entropy up to
+  an additive constant), optimized with **L-BFGS** (a quasi-Newton method on the
+  penalized negative log-likelihood; there is no learning rate or minibatch
+  schedule because the optimizer sees the full training set each step).
+- **Multinomial Naive Bayes:** `CountVectorizer` (unigrams + bigrams) + `MultinomialNB`.
+  Hyperparameters are chosen by **grid search** on the training fold with
+  **macro F1** as the score; see `results/metrics_nb.json` for the selected
+  `alpha` and `min_df`.
+- **Linear SVM (calibrated):** TF–IDF + `LinearSVC` wrapped in
+  `CalibratedClassifierCV` so the pipeline exposes `predict_proba` for top‑k
+  metrics. Hyperparameters are tuned the same way; see `results/metrics_svm.json`.
 
 ### 3.4 Metrics
 
@@ -273,28 +274,39 @@ from. That single curve replaces the abstract "use logistic-regression
 confidence" recommendation with a concrete service-level number a triage team
 could plan around.
 
-### 5.6 Comparison with Naive Bayes and Linear SVM *(Abel)*
+### 5.6 Comparison with Naive Bayes and Linear SVM
 
-> **Pending — Abel's `src/train_models.py` work.** This sub-section will
-> compare Multinomial NB and Linear SVM (with `CalibratedClassifierCV`)
-> against the logistic regression baseline using the same train/val/test
-> splits and the same `src.evaluate.evaluate_model` harness. Once
-> `results/metrics_nb.json` and `results/metrics_linsvc.json` exist, we will:
->
-> - Append rows to the headline table in §5.1.
-> - Re-run `python -m src.figures --model <other>.joblib --out-dir reports/figures/<other>` to produce per-model confusion matrices and per-class bars for direct comparison.
-> - Discuss when each model is preferred (e.g. NB on smaller classes, SVM on top-1 sharpness).
+We trained the two comparison models in `src/train_models.py` on the **same**
+`data/processed/{train,val,test}.csv` files as the baseline. Metrics below are
+read from `results/metrics_nb.json` and `results/metrics_svm.json` after a full
+re-run of `python -m src.train_models --model all`.
+
+| Model | Test accuracy | Test macro F1 | Test top-3 accuracy |
+|---|---:|---:|---:|
+| TF–IDF + Logistic Regression (baseline) | 0.741 | 0.699 | 0.943 |
+| Counts + Multinomial NB | **0.864** | **0.842** | **0.960** |
+| TF–IDF + Calibrated Linear SVM | **0.861** | **0.838** | **0.960** |
+
+**Takeaway.** On this corpus, both alternative linear models clearly beat the
+logistic baseline on top‑1 and macro F1 while slightly improving top‑3 routing.
+The Naive Bayes pipeline is the simplest and marginally edges the SVM on these
+aggregates; either could be preferred depending on deployment constraints
+(inference cost, need for calibrated probabilities, maintenance of two
+vectorizers). For per-class behavior and confusion structure, re-run
+`python -m src.figures --model results/multinomial_nb.joblib` (or the SVM
+joblib) into a separate output directory for side-by-side plots.
 
 ## 6. Error Analysis
 
 We complement the aggregate numbers with concrete failure modes drawn from
 the demo CLI and the test confusion matrix.
 
-1. **"Reset NetID password" routes to Registrar instead of IT.** The bigram
-   *NetID* is rare in the training set; the trigram features the model relies
-   on for IT (*canvas yale*, *admin*, *permissions*) are dominated by the
-   Registrar prior on words like *course* and *school*. Adding more crawl
-   coverage of `its.yale.edu` and Yale IT support pages should fix this.
+1. **Short IT-style questions vs. the Registrar prior.** Even when a question
+   mentions accounts or access, overlap with generic academic vocabulary
+   (*course*, *registration*, *school*) can push the baseline toward
+   **Registrar**. Improving IT-specific coverage in the training text (for
+   example more distinct NetID and account-recovery phrasing) usually reduces
+   this failure mode.
 
 2. **"FAFSA appeal" routes to Registrar instead of Financial_Aid.** *FAFSA*
    itself is a high-IDF term, but in this query both *appeal* and *FAFSA* sit
@@ -371,15 +383,19 @@ than any modeling change.
 
 ## 8. Conclusion
 
-A simple TF-IDF + logistic regression pipeline gets to **0.741 test accuracy**
-and **0.943 top-3 accuracy** on a six-way Yale support-routing task. The
-single biggest failure mode is over-prediction of the Registrar class, which
-the per-class metrics, confusion matrix, and top-feature plots all
-independently confirm. Practically, the right product framing is *not* "pick
-one office" but "produce a top-3 shortlist with a confidence threshold for
-auto-routing"; the CLI demo (`python -m src.demo`) already exposes that
-behavior. The Abel comparison section will tell us how much of the headroom
-is recoverable by switching the linear model rather than the data.
+A TF–IDF + logistic regression baseline reaches **0.741 test accuracy** and
+**0.943 top-3 accuracy** on six-way Yale support routing; the dominant failure
+mode is over-prediction of **Registrar**, visible in per-class metrics, the
+confusion matrix, and the top weighted features. In practice a **top‑3
+shortlist** plus a **confidence gate** is a better framing than forcing a
+single label; §5.5 and the CLI demo illustrate that workflow.
+
+Adding **Multinomial Naive Bayes** and a **calibrated Linear SVM** on the same
+splits materially improves held-out accuracy and macro F1 (**~0.86 / ~0.84**
+for both), with top‑3 accuracy **0.960** (§5.6). The remaining errors are still
+concentrated on offices with overlapping FAQ vocabulary—especially Health and
+financial wording against Registrar—which points to **data augmentation and
+cleanup** as the next lever, not only a different classifier.
 
 ---
 
@@ -414,5 +430,5 @@ python -m src.demo "How do I reset my NetID password?"
 python -m src.demo --top-k 5 "Where do I file a FAFSA appeal?"
 python -m src.demo --interactive
 echo "What dining halls are open on Sunday?" | python -m src.demo --stdin
-python -m src.demo --model results/some_other_model.joblib "..."  # for Abel's models
+python -m src.demo --model results/multinomial_nb.joblib "..."
 ```

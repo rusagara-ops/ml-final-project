@@ -3,237 +3,237 @@
   "model_path": "results/linear_svm_calibrated.joblib",
   "tuning_info": {
     "best_params": {
-      "clf__estimator__C": 0.1,
-      "tfidf__min_df": 2
+      "clf__estimator__C": 10.0,
+      "tfidf__min_df": 1
     },
-    "best_cv_score": 0.09735449735449736,
+    "best_cv_score": 0.8084671810159013,
     "validation_metrics": {
-      "accuracy": 0.1,
-      "f1_macro": 0.08333333333333333,
-      "f1_weighted": 0.1,
+      "accuracy": 0.8705501618122977,
+      "f1_macro": 0.8533329055480694,
+      "f1_weighted": 0.8697262835864461,
       "per_class": {
         "Dining": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
-          "support": 1.0
+          "precision": 0.8913043478260869,
+          "recall": 0.7321428571428571,
+          "f1-score": 0.803921568627451,
+          "support": 56.0
         },
         "Financial_Aid": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
-          "support": 2.0
+          "precision": 0.9036144578313253,
+          "recall": 0.8620689655172413,
+          "f1-score": 0.8823529411764706,
+          "support": 87.0
         },
         "Health_Wellness": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
-          "support": 1.0
+          "precision": 0.8043478260869565,
+          "recall": 0.8409090909090909,
+          "f1-score": 0.8222222222222222,
+          "support": 44.0
         },
         "Housing": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
-          "support": 2.0
+          "precision": 0.8348623853211009,
+          "recall": 0.8425925925925926,
+          "f1-score": 0.8387096774193549,
+          "support": 108.0
         },
         "IT": {
-          "precision": 0.5,
-          "recall": 0.5,
-          "f1-score": 0.5,
-          "support": 2.0
+          "precision": 0.8974358974358975,
+          "recall": 0.8433734939759037,
+          "f1-score": 0.8695652173913043,
+          "support": 83.0
         },
         "Registrar": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
-          "support": 2.0
+          "precision": 0.875,
+          "recall": 0.9333333333333333,
+          "f1-score": 0.9032258064516129,
+          "support": 240.0
         },
-        "accuracy": 0.1,
+        "accuracy": 0.8705501618122977,
         "macro avg": {
-          "precision": 0.08333333333333333,
-          "recall": 0.08333333333333333,
-          "f1-score": 0.08333333333333333,
-          "support": 10.0
+          "precision": 0.8677608190835612,
+          "recall": 0.8424033889118365,
+          "f1-score": 0.8533329055480694,
+          "support": 618.0
         },
         "weighted avg": {
-          "precision": 0.1,
-          "recall": 0.1,
-          "f1-score": 0.1,
-          "support": 10.0
+          "precision": 0.8714743086719591,
+          "recall": 0.8705501618122977,
+          "f1-score": 0.8697262835864461,
+          "support": 618.0
         }
       },
-      "top3_accuracy": 0.5
+      "top3_accuracy": 0.9789644012944984
     }
   },
   "train": {
-    "accuracy": 0.14285714285714285,
-    "f1_macro": 0.14444444444444446,
-    "f1_weighted": 0.1476190476190476,
+    "accuracy": 0.9994603345925526,
+    "f1_macro": 0.9995630484489558,
+    "f1_weighted": 0.9994600021977224,
     "per_class": {
       "Dining": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 5.0
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 171.0
       },
       "Financial_Aid": {
-        "precision": 0.75,
-        "recall": 0.6,
-        "f1-score": 0.6666666666666666,
-        "support": 5.0
-      },
-      "Health_Wellness": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 5.0
-      },
-      "Housing": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 4.0
-      },
-      "IT": {
-        "precision": 0.16666666666666666,
-        "recall": 0.25,
-        "f1-score": 0.2,
-        "support": 4.0
-      },
-      "Registrar": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 5.0
-      },
-      "accuracy": 0.14285714285714285,
-      "macro avg": {
-        "precision": 0.15277777777777776,
-        "recall": 0.14166666666666666,
-        "f1-score": 0.14444444444444446,
-        "support": 28.0
-      },
-      "weighted avg": {
-        "precision": 0.15773809523809526,
-        "recall": 0.14285714285714285,
-        "f1-score": 0.1476190476190476,
-        "support": 28.0
-      }
-    },
-    "top3_accuracy": 0.2857142857142857
-  },
-  "validation": {
-    "accuracy": 0.1,
-    "f1_macro": 0.08333333333333333,
-    "f1_weighted": 0.1,
-    "per_class": {
-      "Dining": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 1.0
-      },
-      "Financial_Aid": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 2.0
-      },
-      "Health_Wellness": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 1.0
-      },
-      "Housing": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 2.0
-      },
-      "IT": {
-        "precision": 0.5,
-        "recall": 0.5,
-        "f1-score": 0.5,
-        "support": 2.0
-      },
-      "Registrar": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 2.0
-      },
-      "accuracy": 0.1,
-      "macro avg": {
-        "precision": 0.08333333333333333,
-        "recall": 0.08333333333333333,
-        "f1-score": 0.08333333333333333,
-        "support": 10.0
-      },
-      "weighted avg": {
-        "precision": 0.1,
-        "recall": 0.1,
-        "f1-score": 0.1,
-        "support": 10.0
-      }
-    },
-    "top3_accuracy": 0.5
-  },
-  "test": {
-    "accuracy": 0.3,
-    "f1_macro": 0.27777777777777773,
-    "f1_weighted": 0.3333333333333333,
-    "per_class": {
-      "Dining": {
-        "precision": 0.5,
-        "recall": 0.5,
-        "f1-score": 0.5,
-        "support": 2.0
-      },
-      "Financial_Aid": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 1.0
+        "precision": 1.0,
+        "recall": 0.9961538461538462,
+        "f1-score": 0.9980732177263969,
+        "support": 260.0
       },
       "Health_Wellness": {
         "precision": 1.0,
-        "recall": 0.5,
-        "f1-score": 0.6666666666666666,
-        "support": 2.0
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 132.0
       },
       "Housing": {
-        "precision": 0.5,
-        "recall": 0.5,
-        "f1-score": 0.5,
-        "support": 2.0
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 323.0
       },
       "IT": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 2.0
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 248.0
       },
       "Registrar": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1-score": 0.0,
-        "support": 1.0
+        "precision": 0.9986111111111111,
+        "recall": 1.0,
+        "f1-score": 0.9993050729673384,
+        "support": 719.0
       },
-      "accuracy": 0.3,
+      "accuracy": 0.9994603345925526,
       "macro avg": {
-        "precision": 0.3333333333333333,
-        "recall": 0.25,
-        "f1-score": 0.27777777777777773,
-        "support": 10.0
+        "precision": 0.9997685185185184,
+        "recall": 0.9993589743589744,
+        "f1-score": 0.9995630484489558,
+        "support": 1853.0
       },
       "weighted avg": {
-        "precision": 0.4,
-        "recall": 0.3,
-        "f1-score": 0.3333333333333333,
-        "support": 10.0
+        "precision": 0.9994610841278407,
+        "recall": 0.9994603345925526,
+        "f1-score": 0.9994600021977224,
+        "support": 1853.0
       }
     },
-    "top3_accuracy": 0.3
+    "top3_accuracy": 1.0
+  },
+  "validation": {
+    "accuracy": 0.8705501618122977,
+    "f1_macro": 0.8533329055480694,
+    "f1_weighted": 0.8697262835864461,
+    "per_class": {
+      "Dining": {
+        "precision": 0.8913043478260869,
+        "recall": 0.7321428571428571,
+        "f1-score": 0.803921568627451,
+        "support": 56.0
+      },
+      "Financial_Aid": {
+        "precision": 0.9036144578313253,
+        "recall": 0.8620689655172413,
+        "f1-score": 0.8823529411764706,
+        "support": 87.0
+      },
+      "Health_Wellness": {
+        "precision": 0.8043478260869565,
+        "recall": 0.8409090909090909,
+        "f1-score": 0.8222222222222222,
+        "support": 44.0
+      },
+      "Housing": {
+        "precision": 0.8348623853211009,
+        "recall": 0.8425925925925926,
+        "f1-score": 0.8387096774193549,
+        "support": 108.0
+      },
+      "IT": {
+        "precision": 0.8974358974358975,
+        "recall": 0.8433734939759037,
+        "f1-score": 0.8695652173913043,
+        "support": 83.0
+      },
+      "Registrar": {
+        "precision": 0.875,
+        "recall": 0.9333333333333333,
+        "f1-score": 0.9032258064516129,
+        "support": 240.0
+      },
+      "accuracy": 0.8705501618122977,
+      "macro avg": {
+        "precision": 0.8677608190835612,
+        "recall": 0.8424033889118365,
+        "f1-score": 0.8533329055480694,
+        "support": 618.0
+      },
+      "weighted avg": {
+        "precision": 0.8714743086719591,
+        "recall": 0.8705501618122977,
+        "f1-score": 0.8697262835864461,
+        "support": 618.0
+      }
+    },
+    "top3_accuracy": 0.9789644012944984
+  },
+  "test": {
+    "accuracy": 0.86084142394822,
+    "f1_macro": 0.8384489719298543,
+    "f1_weighted": 0.8595044041581588,
+    "per_class": {
+      "Dining": {
+        "precision": 0.8979591836734694,
+        "recall": 0.7719298245614035,
+        "f1-score": 0.8301886792452831,
+        "support": 57.0
+      },
+      "Financial_Aid": {
+        "precision": 0.9,
+        "recall": 0.8275862068965517,
+        "f1-score": 0.8622754491017964,
+        "support": 87.0
+      },
+      "Health_Wellness": {
+        "precision": 0.775,
+        "recall": 0.7209302325581395,
+        "f1-score": 0.7469879518072289,
+        "support": 43.0
+      },
+      "Housing": {
+        "precision": 0.8333333333333334,
+        "recall": 0.8796296296296297,
+        "f1-score": 0.8558558558558559,
+        "support": 108.0
+      },
+      "IT": {
+        "precision": 0.927536231884058,
+        "recall": 0.7710843373493976,
+        "f1-score": 0.8421052631578947,
+        "support": 83.0
+      },
+      "Registrar": {
+        "precision": 0.849624060150376,
+        "recall": 0.9416666666666667,
+        "f1-score": 0.8932806324110671,
+        "support": 240.0
+      },
+      "accuracy": 0.86084142394822,
+      "macro avg": {
+        "precision": 0.8639088015068728,
+        "recall": 0.8188044829436314,
+        "f1-score": 0.8384489719298543,
+        "support": 618.0
+      },
+      "weighted avg": {
+        "precision": 0.863598632931804,
+        "recall": 0.86084142394822,
+        "f1-score": 0.8595044041581588,
+        "support": 618.0
+      }
+    },
+    "top3_accuracy": 0.959546925566343
   }
 }

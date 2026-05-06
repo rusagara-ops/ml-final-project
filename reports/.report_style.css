@@ -1,0 +1,14 @@
+/* Minimal print-friendly styling for pandoc HTML → PDF */
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.35;
+  max-width: 48rem;
+  margin: 2rem auto;
+  color: #111;
+}
+h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.25em; }
+table { border-collapse: collapse; width: 100%; font-size: 10pt; }
+th, td { border: 1px solid #ccc; padding: 0.35rem 0.5rem; }
+code { font-size: 0.92em; }
+img { max-width: 100%; height: auto; }

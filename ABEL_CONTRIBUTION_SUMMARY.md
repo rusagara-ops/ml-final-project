@@ -1,96 +1,57 @@
-# Abel's Contribution: Extended Model Comparisons
+# Extended models: Naive Bayes and Linear SVM
 
 ## Overview
-Abel successfully implemented and compared two additional machine learning models against the TF-IDF + Logistic Regression baseline for the RouteRight Yale student support intent classifier.
 
-## Models Implemented
+RouteRight compares the TF–IDF + logistic regression baseline to two additional
+linear text classifiers trained on **`data/processed/train.csv`** with tuning
+guided by **`val.csv`** and final numbers on **`test.csv`**.
 
-### 1. Multinomial Naive Bayes
-- **Pipeline**: CountVectorizer + MultinomialNB
-- **Rationale**: NB works better with raw counts than TF-IDF normalized features
-- **Hyperparameters Tuned**:
-  - `alpha`: [0.01, 0.1, 0.5, 1.0, 2.0, 5.0] (smoothing parameter)
-  - `min_df`: [1, 2] (minimum document frequency)
-- **Best Parameters**: `alpha=1.0, min_df=1`
+## Models
 
-### 2. Linear SVM with Calibration
-- **Pipeline**: TfidfVectorizer + CalibratedClassifierCV(LinearSVC)
-- **Rationale**: Strong linear separator with calibration to enable `predict_proba` for top-k metrics
-- **Hyperparameters Tuned**:
-  - `C`: [0.1, 0.5, 1.0, 2.0, 5.0, 10.0] (regularization parameter)
-  - `min_df`: [1, 2] (minimum document frequency)
-- **Best Parameters**: `C=0.1, min_df=1`
+### Multinomial Naive Bayes
 
-## Technical Implementation Details
+- **Pipeline:** `CountVectorizer` (unigrams + bigrams, `min_df` in \{1, 2\}) + `MultinomialNB`.
+- **Tuning:** `GridSearchCV` with **macro F1**; smoothing grid `alpha` in
+  \{0.01, 0.1, 0.5, 1.0, 2.0, 5.0\}.
+- **Outputs:** `results/multinomial_nb.joblib`, `results/metrics_nb.json`.
 
-### Key Features
-1. **Adaptive Cross-Validation**: Automatically adjusts CV folds based on dataset size to handle small datasets
-2. **Grid Search with F1-Macro**: Uses macro F1 scoring to handle class imbalance fairly
-3. **Calibrated Probabilities**: SVM uses CalibratedClassifierCV to enable top-k accuracy evaluation
-4. **Comprehensive Evaluation**: Reuses existing evaluation framework for consistent metrics
+### Linear SVM with calibration
 
-### Code Structure
-- **Main Module**: `src/train_models.py`
-- **CLI Interface**: Supports `--model nb`, `--model svm`, or `--model all`
-- **Output Files**:
-  - `results/multinomial_nb.joblib` (trained NB model)
-  - `results/linear_svm_calibrated.joblib` (trained SVM model)
-  - `results/metrics_nb.json` (NB evaluation metrics)
-  - `results/metrics_svm.json` (SVM evaluation metrics)
+- **Pipeline:** `TfidfVectorizer` + `CalibratedClassifierCV(LinearSVC(...))`.
+- **Tuning:** `C` grid on the inner `LinearSVC`, `min_df` on the vectorizer (same `{1,2}` idea as NB path).
+- **Outputs:** `results/linear_svm_calibrated.joblib`, `results/metrics_svm.json`.
 
-## Results Comparison
-
-### Test Set Performance
-| Model | Test Accuracy | Test F1-Macro | Test Top-3 Accuracy |
-|-------|---------------|---------------|-------------------|
-| **Multinomial NB** | **0.400** | **0.328** | **0.600** |
-| Logistic Regression (baseline) | 0.300 | 0.222 | 0.500 |
-| Linear SVM | 0.100 | 0.083 | 0.600 |
-
-### Key Findings
-1. **Multinomial NB is the best performer**: Achieves highest accuracy (40%) and F1-macro (0.328)
-2. **Top-3 accuracy is consistent**: Both NB and SVM achieve 60% top-3 accuracy vs 50% for baseline
-3. **SVM struggles with small dataset**: Linear SVM performs poorly, likely due to insufficient training data
-4. **All models show overfitting**: Perfect training accuracy but poor generalization indicates small dataset limitations
-
-## Demo Integration
-Both models are fully integrated with the existing demo CLI:
+## Commands
 
 ```bash
-# Test Naive Bayes model
-python -m src.demo --model results/multinomial_nb.joblib "How do I reset my NetID password?"
-
-# Test Linear SVM model  
-python -m src.demo --model results/linear_svm_calibrated.joblib "How do I reset my NetID password?"
-```
-
-## Usage Instructions
-
-### Training Individual Models
-```bash
-# Train only Naive Bayes
 python -m src.train_models --model nb
-
-# Train only Linear SVM
 python -m src.train_models --model svm
-
-# Train both models and compare
 python -m src.train_models --model all
 ```
 
-### Prerequisites
-```bash
-# Ensure data splits exist
-python -m src.split_data --input data/sample_questions.csv
+Ensure splits exist (`python -m src.split_data --input data/processed/final_dataset.csv`) before training.
 
-# Train baseline for comparison
-python -m src.train_baseline
+## Demo
+
+```bash
+python -m src.demo --model results/multinomial_nb.joblib "How do I reset my NetID password?"
+python -m src.demo --model results/linear_svm_calibrated.joblib "..."
 ```
 
-## Limitations and Future Work
-1. **Small Dataset**: Only 28 training examples limits model performance and hyperparameter tuning effectiveness
-2. **Cross-Validation Issues**: Some CV folds failed due to insufficient samples per class
-3. **Calibration Challenges**: SVM calibration struggled with the small, imbalanced dataset
+## Headline test metrics (representative full-corpus run)
 
-## Conclusion
-Abel successfully extended the RouteRight project with two additional models, demonstrating that Multinomial Naive Bayes outperforms both the Logistic Regression baseline and Linear SVM on this Yale student support classification task. The implementation includes proper hyperparameter tuning, comprehensive evaluation, and seamless integration with the existing codebase.
+Figures vary slightly if splits or hyperparameter search change; authoritative
+numbers are always in **`results/metrics_nb.json`** and **`results/metrics_svm.json`**.
+One consistent snapshot on the shared ~3k-example Yale crawl corpus:
+
+| Model | Test accuracy | Test macro F1 | Test top‑3 accuracy |
+|-------|---------------|----------------|---------------------|
+| Multinomial NB | 0.864 | 0.842 | 0.960 |
+| Calibrated Linear SVM | 0.861 | 0.838 | 0.960 |
+| TF–IDF logistic (baseline) | 0.741 | 0.699 | 0.943 |
+
+## Notes
+
+- Training accuracy can be near-perfect while macro F1 on **Health_Wellness** and
+  other minority offices remains harder; rely on confusion matrices and macro F1, not accuracy alone.
+- Re-run **`python -m src.train_models`** after any change to `collected_questions.csv` → `clean_dataset` → `split_data` so metrics files stay aligned with `final_report.md`.
